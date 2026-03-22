@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoVault - Real-Time Portfolio Tracker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--green:#00ff88;--cyan:#00e5ff;--magenta:#ff00aa;--orange:#ff6b35;--yellow:#ffe600;--red:#ff4444;--text:#e0e0e0;--muted:#666}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
+.app{max-width:1400px;margin:0 auto;padding:12px}
+
+/* Navbar */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.logo{font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.wallet-info{display:flex;align-items:center;gap:16px;font-size:13px}
+.wallet-bal{color:var(--green);font-weight:700;font-size:16px}
+.notif-icon{position:relative;cursor:pointer;font-size:20px}
+.notif-badge{position:absolute;top:-4px;right:-6px;background:var(--magenta);color:#fff;font-size:9px;padding:1px 4px;border-radius:50%}
+
+/* Grid */
+.grid{display:grid;gap:12px}
+.grid-top{grid-template-columns:1fr 1fr 1fr 1fr}
+.grid-main{grid-template-columns:2fr 1fr}
+.grid-bottom{grid-template-columns:1.5fr 1fr}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:transform 0.2s,box-shadow 0.2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,255,136,0.08)}
+.card-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.card-value{font-size:24px;font-weight:800}
+.card-change{font-size:12px;margin-top:4px}
+.positive{color:var(--green)}
+.negative{color:var(--red)}
+
+/* Charts */
+canvas{display:block;width:100%;border-radius:8px}
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.chart-tabs{display:flex;gap:4px}
+.chart-tab{background:var(--border);border:none;color:var(--muted);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;transition:all 0.2s}
+.chart-tab.active{background:var(--green);color:var(--bg);font-weight:700}
+
+/* Donut */
+.donut-container{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center}
+.donut-legend{display:flex;flex-direction:column;gap:8px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+/* Table */
+.tx-table{width:100%;border-collapse:collapse;font-size:12px}
+.tx-table th{text-align:left;padding:10px 8px;color:var(--muted);border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase}
+.tx-table td{padding:10px 8px;border-bottom:1px solid var(--border)}
+.tx-table tr:hover td{background:rgba(0,255,136,0.03)}
+.tx-type{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.tx-buy{background:rgba(0,255,136,0.15);color:var(--green)}
+.tx-sell{background:rgba(255,68,68,0.15);color:var(--red)}
+.tx-swap{background:rgba(0,229,255,0.15);color:var(--cyan)}
+
+/* Alerts */
+.alert{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:12px;border-left:3px solid;animation:fadeIn 0.3s}
+.alert-high{background:rgba(255,68,68,0.1);border-color:var(--red);color:var(--red)}
+.alert-medium{background:rgba(255,230,0,0.1);border-color:var(--yellow);color:var(--yellow)}
+.alert-low{background:rgba(0,229,255,0.1);border-color:var(--cyan);color:var(--cyan)}
+.alert-time{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* Responsive */
+@media(max-width:900px){.grid-top{grid-template-columns:1fr 1fr}.grid-main,.grid-bottom{grid-template-columns:1fr}}
+@media(max-width:500px){.grid-top{grid-template-columns:1fr}.navbar{flex-direction:column;text-align:center}}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">⚡ CryptoVault</div>
+    <div class="wallet-info">
+      <span><span class="live-dot"></span>Live</span>
+      <span>Balance: <span class="wallet-bal" id="totalBal">$0.00</span></span>
+      <span class="notif-icon">🔔<span class="notif-badge" id="notifCount">3</span></span>
+    </div>
+  </nav>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-top" id="kpiCards"></div>
+
+  <!-- Main: Price Chart + Donut -->
+  <div class="grid grid-main" style="margin-top:12px">
+    <div class="card">
+      <div class="chart-header">
+        <div class="card-title"><span class="live-dot"></span>Price Chart — <span id="chartCoin">BTC</span></div>
+        <div class="chart-tabs" id="coinTabs"></div>
+      </div>
+      <canvas id="priceChart" height="280"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Portfolio Allocation</div>
+      <div class="donut-container">
+        <canvas id="donutChart" width="180" height="180"></canvas>
+        <div class="donut-legend" id="donutLegend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom: Transactions + Alerts -->
+  <div class="grid grid-bottom" style="margin-top:12px">
+    <div class="card">
+      <div class="card-title">Recent Transactions</div>
+      <table class="tx-table">
+        <thead><tr><th>Type</th><th>Asset</th><th>Amount</th><th>Price</th><th>P/L</th><th>Time</th></tr></thead>
+        <tbody id="txBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="chart-header"><div class="card-title">🚨 Alerts</div></div>
+      <div id="alertsPanel"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Data ───────────────────────────────────────
+const COINS = [
+  { sym: 'BTC', name: 'Bitcoin', price: 67432.18, color: '#f7931a', alloc: 45 },
+  { sym: 'ETH', name: 'Ethereum', price: 3521.44, color: '#627eea', alloc: 25 },
+  { sym: 'SOL', name: 'Solana', price: 142.87, color: '#00ff88', alloc: 15 },
+  { sym: 'AVAX', name: 'Avalanche', price: 38.52, color: '#e84142', alloc: 10 },
+  { sym: 'LINK', name: 'Chainlink', price: 18.73, color: '#2a5ada', alloc: 5 },
+];
+
+let selectedCoin = 0;
+const priceHistory = COINS.map(c => {
+  const pts = [];
+  let p = c.price * 0.92;
+  for (let i = 0; i < 60; i++) { p += (Math.random() - 0.48) * c.price * 0.008; pts.push(p); }
+  return pts;
+});
+
+const transactions = [];
+const alerts = [
+  { level: 'high', msg: 'BTC dropped 3.2% in the last hour', time: '2m ago' },
+  { level: 'medium', msg: 'ETH gas fees above 50 gwei', time: '8m ago' },
+  { level: 'low', msg: 'SOL staking rewards claimed: 2.4 SOL', time: '15m ago' },
+  { level: 'high', msg: 'Portfolio down 1.8% today', time: '22m ago' },
+  { level: 'medium', msg: 'LINK approaching resistance at $19.50', time: '35m ago' },
+];
+
+// ─── Generate Transactions ─────────────────────
+function genTx() {
+  const types = ['buy','sell','swap'];
+  const type = types[Math.floor(Math.random()*3)];
+  const coin = COINS[Math.floor(Math.random()*COINS.length)];
+  const amt = (Math.random() * 2 + 0.01).toFixed(4);
+  const price = coin.price * (1 + (Math.random()-0.5)*0.02);
+  const pl = (Math.random()-0.45) * price * amt * 0.05;
+  const mins = Math.floor(Math.random()*60);
+  return { type, sym: coin.sym, amount: amt, price: price.toFixed(2), pl: pl.toFixed(2), time: `${mins}m ago` };
+}
+for (let i = 0; i < 12; i++) transactions.push(genTx());
+
+// ─── Render KPIs ────────────────────────────────
+function renderKPIs() {
+  const total = COINS.reduce((s,c) => s + c.price * c.alloc * 0.1, 0);
+  document.getElementById('totalBal').textContent = '$' + total.toFixed(2);
+  const changes = COINS.map(() => (Math.random()-0.45)*6);
+  const kpis = [
+    { title: 'Portfolio Value', value: '$' + total.toFixed(2), change: changes[0], color: 'var(--green)' },
+    { title: 'BTC Price', value: '$' + COINS[0].price.toFixed(2), change: changes[1], color: '#f7931a' },
+    { title: '24h Volume', value: '$' + (Math.random()*50+10).toFixed(1) + 'B', change: changes[2], color: 'var(--cyan)' },
+    { title: 'Active Positions', value: COINS.length.toString(), change: null, color: 'var(--magenta)' },
+  ];
+  document.getElementById('kpiCards').innerHTML = kpis.map(k => `
+    <div class="card">
+      <div class="card-title">${k.title}</div>
+      <div class="card-value" style="color:${k.color}">${k.value}</div>
+      ${k.change !== null ? `<div class="card-change ${k.change >= 0 ? 'positive' : 'negative'}">${k.change >= 0 ? '▲' : '▼'} ${Math.abs(k.change).toFixed(2)}%</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ─── Price Chart ────────────────────────────────
+function drawPriceChart() {
+  const canvas = document.getElementById('priceChart');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * 2;
+  canvas.height = 280 * 2;
+  ctx.scale(2, 2);
+  const w = canvas.offsetWidth, h = 280;
+  ctx.clearRect(0, 0, w, h);
+
+  const data = priceHistory[selectedCoin];
+  const min = Math.min(...data) * 0.998;
+  const max = Math.max(...data) * 1.002;
+  const range = max - min;
+
+  // Grid
+  ctx.strokeStyle = '#1e1e2e';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < 5; i++) {
+    const y = (h - 30) * i / 4 + 10;
+    ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(w - 10, y); ctx.stroke();
+    ctx.fillStyle = '#444';
+    ctx.font = '10px system-ui';
+    ctx.fillText('$' + (max - range * i / 4).toFixed(0), 0, y + 4);
+  }
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  const color = COINS[selectedCoin].color;
+  grad.addColorStop(0, color + '33');
+  grad.addColorStop(1, color + '00');
+  ctx.beginPath();
+  ctx.moveTo(40, h - 20);
+  data.forEach((p, i) => {
+    const x = 40 + (i / (data.length - 1)) * (w - 50);
+    const y = 10 + ((max - p) / range) * (h - 40);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.lineTo(40 + (w - 50), h - 20);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
+  data.forEach((p, i) => {
+    const x = 40 + (i / (data.length - 1)) * (w - 50);
+    const y = 10 + ((max - p) / range) * (h - 40);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Current price dot
+  const lastX = w - 10;
+  const lastY = 10 + ((max - data[data.length - 1]) / range) * (h - 40);
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 12px system-ui';
+  ctx.fillText('$' + data[data.length - 1].toFixed(2), lastX - 80, lastY - 10);
+}
+
+// ─── Donut Chart ────────────────────────────────
+function drawDonut() {
+  const canvas = document.getElementById('donutChart');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 360; canvas.height = 360;
+  const cx = 180, cy = 180, r = 70, rInner = 45;
+
+  let start = -Math.PI / 2;
+  COINS.forEach(c => {
+    const angle = (c.alloc / 100) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.arc(cx, cy, rInner, start + angle, start, true);
+    ctx.closePath();
+    ctx.fillStyle = c.color;
+    ctx.shadowColor = c.color;
+    ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    start += angle;
+  });
+
+  // Center text
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 16px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('100%', cx, cy + 6);
+
+  // Legend
+  document.getElementById('donutLegend').innerHTML = COINS.map(c => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${c.color}"></span>
+      <span>${c.sym}</span>
+      <span style="color:var(--muted);margin-left:auto">${c.alloc}%</span>
+    </div>
+  `).join('');
+}
+
+// ─── Transactions Table ─────────────────────────
+function renderTransactions() {
+  document.getElementById('txBody').innerHTML = transactions.map(tx => `
+    <tr>
+      <td><span class="tx-type tx-${tx.type}">${tx.type.toUpperCase()}</span></td>
+      <td style="font-weight:700">${tx.sym}</td>
+      <td>${tx.amount}</td>
+      <td>$${tx.price}</td>
+      <td class="${parseFloat(tx.pl) >= 0 ? 'positive' : 'negative'}">${parseFloat(tx.pl) >= 0 ? '+' : ''}$${tx.pl}</td>
+      <td style="color:var(--muted)">${tx.time}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── Alerts Panel ───────────────────────────────
+function renderAlerts() {
+  document.getElementById('alertsPanel').innerHTML = alerts.map(a => `
+    <div class="alert alert-${a.level}">
+      <div>${a.level === 'high' ? '🔴' : a.level === 'medium' ? '🟡' : '🔵'} ${a.msg}</div>
+      <div class="alert-time">${a.time}</div>
+    </div>
+  `).join('');
+}
+
+// ─── Coin Tabs ──────────────────────────────────
+function renderTabs() {
+  document.getElementById('coinTabs').innerHTML = COINS.map((c, i) => `
+    <button class="chart-tab ${i === selectedCoin ? 'active' : ''}" onclick="selectCoin(${i})">${c.sym}</button>
+  `).join('');
+}
+function selectCoin(i) {
+  selectedCoin = i;
+  document.getElementById('chartCoin').textContent = COINS[i].sym;
+  renderTabs();
+  drawPriceChart();
+}
+
+// ─── Live Updates ───────────────────────────────
+function tick() {
+  COINS.forEach((c, i) => {
+    const delta = (Math.random() - 0.48) * c.price * 0.003;
+    c.price += delta;
+    priceHistory[i].push(c.price);
+    if (priceHistory[i].length > 80) priceHistory[i].shift();
+  });
+  renderKPIs();
+  drawPriceChart();
+
+  // Occasional new transaction
+  if (Math.random() > 0.7) {
+    transactions.unshift(genTx());
+    if (transactions.length > 15) transactions.pop();
+    renderTransactions();
+  }
+
+  // Occasional alert
+  if (Math.random() > 0.92) {
+    const msgs = [
+      { level:'high', msg:`${COINS[Math.floor(Math.random()*5)].sym} flash crash detected -${(Math.random()*5+1).toFixed(1)}%` },
+      { level:'medium', msg:`Whale alert: ${(Math.random()*500+100).toFixed(0)} BTC moved` },
+      { level:'low', msg:`Staking reward: ${(Math.random()*10).toFixed(2)} SOL earned` },
+    ];
+    const a = msgs[Math.floor(Math.random()*3)];
+    a.time = 'just now';
+    alerts.unshift(a);
+    if (alerts.length > 8) alerts.pop();
+    renderAlerts();
+    document.getElementById('notifCount').textContent = parseInt(document.getElementById('notifCount').textContent) + 1;
+  }
+}
+
+// ─── Init ───────────────────────────────────────
+renderKPIs();
+renderTabs();
+drawPriceChart();
+drawDonut();
+renderTransactions();
+renderAlerts();
+setInterval(tick, 2000);
+window.addEventListener('resize', () => { drawPriceChart(); drawDonut(); });
+</script>
+</body>
+</html>
