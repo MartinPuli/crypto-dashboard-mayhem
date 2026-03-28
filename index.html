@@ -6,39 +6,59 @@
 <title>CryptoVault - Real-Time Portfolio Tracker</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--green:#00ff88;--cyan:#00e5ff;--magenta:#ff00aa;--orange:#ff6b35;--yellow:#ffe600;--red:#ff4444;--text:#e0e0e0;--muted:#666}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
-.app{max-width:1400px;margin:0 auto;padding:12px}
+:root{
+  --bg:#06060c;--card:#0e0e18;--border:#1a1a2e;
+  --green:#00ff88;--cyan:#00e5ff;--magenta:#ff00aa;--orange:#ff6b35;--yellow:#ffe600;--red:#ff4444;
+  --text:#e0e0e0;--muted:#555;
+  --fear:#ff2244;--greed:#00ff88;--neutral:#ffe600;
+  --card2:#14142a;--modal-bg:rgba(2,2,8,0.92);
+  --glow-green:rgba(0,255,136,0.12);--glow-cyan:rgba(0,229,255,0.10);
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 20% 10%,rgba(0,255,136,0.03),transparent),
+  radial-gradient(ellipse 60% 50% at 80% 80%,rgba(0,229,255,0.025),transparent),
+  radial-gradient(ellipse 40% 40% at 50% 50%,rgba(255,0,170,0.015),transparent);
+  pointer-events:none;z-index:0}
+.app{max-width:1440px;margin:0 auto;padding:12px 16px;position:relative;z-index:1}
 
 /* Navbar */
-.navbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap;gap:10px}
-.logo{font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap;gap:10px;background:linear-gradient(180deg,rgba(14,14,24,0.8),transparent)}
+.logo{font-size:24px;font-weight:900;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.5px}
 .wallet-info{display:flex;align-items:center;gap:16px;font-size:13px}
 .wallet-bal{color:var(--green);font-weight:700;font-size:16px}
 .notif-icon{position:relative;cursor:pointer;font-size:20px}
-.notif-badge{position:absolute;top:-4px;right:-6px;background:var(--magenta);color:#fff;font-size:9px;padding:1px 4px;border-radius:50%}
+.notif-badge{position:absolute;top:-4px;right:-6px;background:var(--magenta);color:#fff;font-size:9px;padding:1px 5px;border-radius:50%}
+.trade-btn{background:linear-gradient(135deg,var(--green),var(--cyan));border:none;color:var(--bg);padding:8px 20px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;transition:all 0.25s;letter-spacing:0.3px}
+.trade-btn:hover{filter:brightness(1.2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,255,136,0.3)}
 
 /* Grid */
 .grid{display:grid;gap:12px}
 .grid-top{grid-template-columns:1fr 1fr 1fr 1fr}
 .grid-main{grid-template-columns:2fr 1fr}
 .grid-bottom{grid-template-columns:1.5fr 1fr}
+.grid-extra{grid-template-columns:1fr 2fr}
 
 /* Cards */
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:transform 0.2s,box-shadow 0.2s}
-.card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,255,136,0.08)}
-.card-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.card-value{font-size:24px;font-weight:800}
-.card-change{font-size:12px;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;transition:transform 0.3s cubic-bezier(0.22,1,0.36,1),box-shadow 0.3s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,136,0.15),transparent);opacity:0;transition:opacity 0.3s}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,255,136,0.08)}
+.card:hover::before{opacity:1}
+.card-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-weight:600}
+.card-value{font-size:26px;font-weight:800;letter-spacing:-0.5px}
+.card-change{font-size:12px;margin-top:4px;font-weight:600}
 .positive{color:var(--green)}
 .negative{color:var(--red)}
+
+/* Sparklines */
+.kpi-sparkline{width:100%;height:36px;margin-top:8px;display:block;border-radius:4px;opacity:0.85}
 
 /* Charts */
 canvas{display:block;width:100%;border-radius:8px}
 .chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
 .chart-tabs{display:flex;gap:4px}
-.chart-tab{background:var(--border);border:none;color:var(--muted);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;transition:all 0.2s}
-.chart-tab.active{background:var(--green);color:var(--bg);font-weight:700}
+.chart-tab{background:var(--border);border:none;color:var(--muted);padding:5px 14px;border-radius:7px;cursor:pointer;font-size:11px;transition:all 0.25s;font-weight:600}
+.chart-tab.active{background:var(--green);color:var(--bg);font-weight:700;box-shadow:0 2px 12px rgba(0,255,136,0.25)}
 
 /* Donut */
 .donut-container{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center}
@@ -48,39 +68,99 @@ canvas{display:block;width:100%;border-radius:8px}
 
 /* Table */
 .tx-table{width:100%;border-collapse:collapse;font-size:12px}
-.tx-table th{text-align:left;padding:10px 8px;color:var(--muted);border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase}
-.tx-table td{padding:10px 8px;border-bottom:1px solid var(--border)}
-.tx-table tr:hover td{background:rgba(0,255,136,0.03)}
+.tx-table th{text-align:left;padding:10px 8px;color:var(--muted);border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:0.5px}
+.tx-table td{padding:10px 8px;border-bottom:1px solid rgba(26,26,46,0.6)}
+.tx-table tr:hover td{background:rgba(0,255,136,0.02)}
 .tx-type{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
-.tx-buy{background:rgba(0,255,136,0.15);color:var(--green)}
-.tx-sell{background:rgba(255,68,68,0.15);color:var(--red)}
-.tx-swap{background:rgba(0,229,255,0.15);color:var(--cyan)}
+.tx-buy{background:rgba(0,255,136,0.12);color:var(--green)}
+.tx-sell{background:rgba(255,68,68,0.12);color:var(--red)}
+.tx-swap{background:rgba(0,229,255,0.12);color:var(--cyan)}
 
 /* Alerts */
-.alert{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:12px;border-left:3px solid;animation:fadeIn 0.3s}
-.alert-high{background:rgba(255,68,68,0.1);border-color:var(--red);color:var(--red)}
-.alert-medium{background:rgba(255,230,0,0.1);border-color:var(--yellow);color:var(--yellow)}
-.alert-low{background:rgba(0,229,255,0.1);border-color:var(--cyan);color:var(--cyan)}
+.alert{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:12px;border-left:3px solid;position:relative;overflow:hidden}
+.alert::before{content:'';position:absolute;inset:0;opacity:0.04;background:linear-gradient(90deg,currentColor,transparent)}
+.alert-high{background:rgba(255,68,68,0.06);border-color:var(--red);color:var(--red)}
+.alert-medium{background:rgba(255,230,0,0.06);border-color:var(--yellow);color:var(--yellow)}
+.alert-low{background:rgba(0,229,255,0.06);border-color:var(--cyan);color:var(--cyan)}
 .alert-time{font-size:10px;color:var(--muted);margin-top:4px}
 
-/* Responsive */
-@media(max-width:900px){.grid-top{grid-template-columns:1fr 1fr}.grid-main,.grid-bottom{grid-template-columns:1fr}}
-@media(max-width:500px){.grid-top{grid-template-columns:1fr}.navbar{flex-direction:column;text-align:center}}
+/* Gauge */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding-top:4px}
+.gauge-label{font-size:32px;font-weight:900;margin-top:-20px;letter-spacing:-1px}
+.gauge-sublabel{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:4px;font-weight:600}
 
+/* Heatmap */
+.heatmap-wrap{position:relative;width:100%;height:220px}
+.heatmap-wrap canvas{width:100%;height:100%;border-radius:8px}
+.heatmap-tooltip{position:absolute;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:10;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+
+/* Trading Modal */
+.modal-overlay{position:fixed;inset:0;background:var(--modal-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:18px;width:min(420px,92vw);padding:28px;transform:translateY(24px) scale(0.96);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.6)}
+.modal-overlay.open .modal-box{transform:translateY(0) scale(1)}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-size:18px;font-weight:800;letter-spacing:-0.3px}
+.modal-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;transition:color 0.2s}
+.modal-close:hover{color:var(--text)}
+.modal-tabs{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:20px}
+.modal-tab{flex:1;padding:11px;background:none;border:none;color:var(--muted);cursor:pointer;font-weight:700;font-size:13px;transition:all 0.25s;letter-spacing:0.5px}
+.modal-tab.active.buy{background:rgba(0,255,136,0.12);color:var(--green)}
+.modal-tab.active.sell{background:rgba(255,68,68,0.12);color:var(--red)}
+.modal-field{margin-bottom:16px}
+.modal-field label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:600}
+.modal-select,.modal-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:11px 14px;font-size:14px;outline:none;transition:border-color 0.25s}
+.modal-select:focus,.modal-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,136,0.08)}
+.modal-preview{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border)}
+.modal-preview-price{font-size:12px;color:var(--muted)}
+.modal-preview-total{font-size:20px;font-weight:800;color:var(--green)}
+.modal-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.25s;letter-spacing:0.5px}
+.modal-btn.buy-btn{background:linear-gradient(135deg,var(--green),var(--cyan));color:var(--bg)}
+.modal-btn.sell-btn{background:linear-gradient(135deg,var(--red),var(--magenta));color:#fff}
+.modal-btn:hover{filter:brightness(1.15);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,255,136,0.2)}
+.modal-btn:active{transform:translateY(0)}
+.modal-success{position:absolute;inset:0;background:var(--card);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.modal-success.show{opacity:1;pointer-events:all}
+.modal-success-icon{font-size:60px;animation:successPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275)}
+
+/* Animations */
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-.live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;margin-right:6px}
+@keyframes cardEntrance{from{opacity:0;transform:translateY(28px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes successPop{from{transform:scale(0.2) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0)}50%{box-shadow:0 0 24px 4px rgba(0,255,136,0.12)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+
+.card-entrance{animation:cardEntrance 0.55s cubic-bezier(0.22,1,0.36,1) both}
+.card-glow:hover{animation:glowPulse 2.5s ease infinite}
+.live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;margin-right:6px;box-shadow:0 0 8px var(--green)}
+.num-flash-up{color:var(--green)!important;text-shadow:0 0 8px rgba(0,255,136,0.4);transition:all 0.15s}
+.num-flash-down{color:var(--red)!important;text-shadow:0 0 8px rgba(255,68,68,0.4);transition:all 0.15s}
+.input-error{border-color:var(--red)!important;animation:shake 0.4s}
+
+/* Responsive */
+@media(max-width:900px){
+  .grid-top{grid-template-columns:1fr 1fr}
+  .grid-main,.grid-bottom,.grid-extra{grid-template-columns:1fr}
+}
+@media(max-width:500px){
+  .grid-top{grid-template-columns:1fr}
+  .navbar{flex-direction:column;text-align:center}
+}
 </style>
 </head>
 <body>
 <div class="app">
   <!-- Navbar -->
   <nav class="navbar">
-    <div class="logo">⚡ CryptoVault</div>
+    <div class="logo">&#9889; CryptoVault</div>
     <div class="wallet-info">
       <span><span class="live-dot"></span>Live</span>
       <span>Balance: <span class="wallet-bal" id="totalBal">$0.00</span></span>
-      <span class="notif-icon">🔔<span class="notif-badge" id="notifCount">3</span></span>
+      <span class="notif-icon">&#128276;<span class="notif-badge" id="notifCount">3</span></span>
+      <button class="trade-btn" onclick="TradeModal.open()">+ Trade</button>
     </div>
   </nav>
 
@@ -91,7 +171,7 @@ canvas{display:block;width:100%;border-radius:8px}
   <div class="grid grid-main" style="margin-top:12px">
     <div class="card">
       <div class="chart-header">
-        <div class="card-title"><span class="live-dot"></span>Price Chart — <span id="chartCoin">BTC</span></div>
+        <div class="card-title"><span class="live-dot"></span>Price Chart &mdash; <span id="chartCoin">BTC</span></div>
         <div class="chart-tabs" id="coinTabs"></div>
       </div>
       <canvas id="priceChart" height="280"></canvas>
@@ -115,20 +195,75 @@ canvas{display:block;width:100%;border-radius:8px}
       </table>
     </div>
     <div class="card">
-      <div class="chart-header"><div class="card-title">🚨 Alerts</div></div>
+      <div class="chart-header"><div class="card-title">&#128680; Alerts</div></div>
       <div id="alertsPanel"></div>
+    </div>
+  </div>
+
+  <!-- Extra Row: Fear & Greed + Heatmap -->
+  <div class="grid grid-extra" style="margin-top:12px">
+    <div class="card" id="gaugeCard">
+      <div class="card-title">Fear &amp; Greed Index</div>
+      <div class="gauge-wrap">
+        <canvas id="gaugeCanvas" width="520" height="280"></canvas>
+        <div class="gauge-label" id="gaugeValue">--</div>
+        <div class="gauge-sublabel" id="gaugeWord">Loading</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chart-header">
+        <div class="card-title">Market Heatmap &mdash; 24h Performance</div>
+      </div>
+      <div class="heatmap-wrap">
+        <canvas id="heatmapCanvas"></canvas>
+        <div class="heatmap-tooltip" id="heatmapTip"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trading Modal -->
+<div class="modal-overlay" id="tradeModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Trade Asset</div>
+      <button class="modal-close" onclick="TradeModal.close()">&#x2715;</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active buy" id="tabBuy" onclick="TradeModal.setMode('buy')">BUY</button>
+      <button class="modal-tab sell" id="tabSell" onclick="TradeModal.setMode('sell')">SELL</button>
+    </div>
+    <div class="modal-field">
+      <label>Select Asset</label>
+      <select class="modal-select" id="tradeAsset" onchange="TradeModal.update()"></select>
+    </div>
+    <div class="modal-field">
+      <label>Amount</label>
+      <input class="modal-input" id="tradeAmount" type="number" min="0" step="0.0001" placeholder="0.0000" oninput="TradeModal.update()">
+    </div>
+    <div class="modal-preview">
+      <div class="modal-preview-price">Live Price: <span id="tradeLivePrice">$0.00</span></div>
+      <div class="modal-preview-total" id="tradeTotal">$0.00</div>
+    </div>
+    <button class="modal-btn buy-btn" id="tradeSubmitBtn" onclick="TradeModal.submit()">CONFIRM BUY</button>
+    <div class="modal-success" id="tradeSuccess">
+      <div class="modal-success-icon">&#x2705;</div>
+      <div style="font-size:18px;font-weight:800;margin-top:12px">Order Executed!</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px" id="successDetail"></div>
     </div>
   </div>
 </div>
 
 <script>
-// ─── Data ───────────────────────────────────────
+// =========================================================
+//  DATA
+// =========================================================
 const COINS = [
-  { sym: 'BTC', name: 'Bitcoin', price: 67432.18, color: '#f7931a', alloc: 45 },
-  { sym: 'ETH', name: 'Ethereum', price: 3521.44, color: '#627eea', alloc: 25 },
-  { sym: 'SOL', name: 'Solana', price: 142.87, color: '#00ff88', alloc: 15 },
-  { sym: 'AVAX', name: 'Avalanche', price: 38.52, color: '#e84142', alloc: 10 },
-  { sym: 'LINK', name: 'Chainlink', price: 18.73, color: '#2a5ada', alloc: 5 },
+  { sym: 'BTC',  name: 'Bitcoin',    price: 67432.18, color: '#f7931a', alloc: 45 },
+  { sym: 'ETH',  name: 'Ethereum',   price: 3521.44,  color: '#627eea', alloc: 25 },
+  { sym: 'SOL',  name: 'Solana',     price: 142.87,   color: '#00ff88', alloc: 15 },
+  { sym: 'AVAX', name: 'Avalanche',  price: 38.52,    color: '#e84142', alloc: 10 },
+  { sym: 'LINK', name: 'Chainlink',  price: 18.73,    color: '#2a5ada', alloc: 5 },
 ];
 
 let selectedCoin = 0;
@@ -141,14 +276,13 @@ const priceHistory = COINS.map(c => {
 
 const transactions = [];
 const alerts = [
-  { level: 'high', msg: 'BTC dropped 3.2% in the last hour', time: '2m ago' },
-  { level: 'medium', msg: 'ETH gas fees above 50 gwei', time: '8m ago' },
-  { level: 'low', msg: 'SOL staking rewards claimed: 2.4 SOL', time: '15m ago' },
-  { level: 'high', msg: 'Portfolio down 1.8% today', time: '22m ago' },
+  { level: 'high',   msg: 'BTC dropped 3.2% in the last hour', time: '2m ago' },
+  { level: 'medium', msg: 'ETH gas fees above 50 gwei',        time: '8m ago' },
+  { level: 'low',    msg: 'SOL staking rewards claimed: 2.4 SOL', time: '15m ago' },
+  { level: 'high',   msg: 'Portfolio down 1.8% today',         time: '22m ago' },
   { level: 'medium', msg: 'LINK approaching resistance at $19.50', time: '35m ago' },
 ];
 
-// ─── Generate Transactions ─────────────────────
 function genTx() {
   const types = ['buy','sell','swap'];
   const type = types[Math.floor(Math.random()*3)];
@@ -157,33 +291,189 @@ function genTx() {
   const price = coin.price * (1 + (Math.random()-0.5)*0.02);
   const pl = (Math.random()-0.45) * price * amt * 0.05;
   const mins = Math.floor(Math.random()*60);
-  return { type, sym: coin.sym, amount: amt, price: price.toFixed(2), pl: pl.toFixed(2), time: `${mins}m ago` };
+  return { type, sym: coin.sym, amount: amt, price: price.toFixed(2), pl: pl.toFixed(2), time: mins + 'm ago' };
 }
 for (let i = 0; i < 12; i++) transactions.push(genTx());
 
-// ─── Render KPIs ────────────────────────────────
+// =========================================================
+//  ANIM ENGINE
+// =========================================================
+const AnimEngine = {
+  animateNumber(el, from, to, dur, fmt) {
+    const start = performance.now();
+    const ease = t => 1 - Math.pow(1 - t, 3); // easeOutCubic
+    const step = (now) => {
+      const t = Math.min((now - start) / dur, 1);
+      el.textContent = fmt(from + (to - from) * ease(t));
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  },
+  flashColor(el, dir) {
+    const cls = dir > 0 ? 'num-flash-up' : 'num-flash-down';
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), 600);
+  },
+  staggerEntrance(container) {
+    const cards = container.querySelectorAll('.card');
+    cards.forEach((c, i) => {
+      c.style.animationDelay = (i * 90) + 'ms';
+      c.classList.add('card-entrance');
+    });
+  },
+  applyGlowToCards() {
+    document.querySelectorAll('.card').forEach(c => c.classList.add('card-glow'));
+  }
+};
+
+// =========================================================
+//  SPARKLINE MODULE
+// =========================================================
+const sparkData = COINS.map((c, i) => {
+  const d = [];
+  const h = priceHistory[i];
+  for (let j = Math.max(0, h.length - 20); j < h.length; j++) d.push(h[j]);
+  return d;
+});
+
+const SparklineModule = {
+  push(i, price) {
+    if (i >= sparkData.length) return;
+    sparkData[i].push(price);
+    if (sparkData[i].length > 24) sparkData[i].shift();
+  },
+  draw(idx) {
+    const canvas = document.getElementById('spark-' + idx);
+    if (!canvas) return;
+    const data = sparkData[Math.min(idx, sparkData.length - 1)];
+    if (!data || data.length < 2) return;
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    if (w === 0 || h === 0) return;
+    canvas.width = w * 2;
+    canvas.height = h * 2;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+    ctx.clearRect(0, 0, w, h);
+
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+    const up = data[data.length - 1] >= data[0];
+    const color = up ? '#00ff88' : '#ff4444';
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, (up ? 'rgba(0,255,136,' : 'rgba(255,68,68,') + '0.2)');
+    grad.addColorStop(1, (up ? 'rgba(0,255,136,' : 'rgba(255,68,68,') + '0)');
+
+    ctx.beginPath();
+    data.forEach((p, i) => {
+      const x = (i / (data.length - 1)) * w;
+      const y = h - ((p - min) / range) * (h - 4) - 2;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    // Close for fill
+    const fillPath = new Path2D();
+    data.forEach((p, i) => {
+      const x = (i / (data.length - 1)) * w;
+      const y = h - ((p - min) / range) * (h - 4) - 2;
+      if (i === 0) fillPath.moveTo(x, y); else fillPath.lineTo(x, y);
+    });
+    fillPath.lineTo(w, h);
+    fillPath.lineTo(0, h);
+    fillPath.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill(fillPath);
+
+    // Line
+    ctx.beginPath();
+    data.forEach((p, i) => {
+      const x = (i / (data.length - 1)) * w;
+      const y = h - ((p - min) / range) * (h - 4) - 2;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 4;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // End dot
+    const lastX = w;
+    const lastY = h - ((data[data.length - 1] - min) / range) * (h - 4) - 2;
+    ctx.beginPath();
+    ctx.arc(lastX - 1, lastY, 2, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  },
+  drawAll() {
+    for (let i = 0; i < 4; i++) this.draw(i);
+  }
+};
+
+// =========================================================
+//  KPI CARDS (Stable DOM)
+// =========================================================
+let kpisInited = false;
+let prevKpiValues = [null, null, null, null];
+
 function renderKPIs() {
-  const total = COINS.reduce((s,c) => s + c.price * c.alloc * 0.1, 0);
+  const total = COINS.reduce((s, c) => s + c.price * c.alloc * 0.1, 0);
   document.getElementById('totalBal').textContent = '$' + total.toFixed(2);
-  const changes = COINS.map(() => (Math.random()-0.45)*6);
+  const changes = COINS.map(() => (Math.random() - 0.45) * 6);
   const kpis = [
-    { title: 'Portfolio Value', value: '$' + total.toFixed(2), change: changes[0], color: 'var(--green)' },
-    { title: 'BTC Price', value: '$' + COINS[0].price.toFixed(2), change: changes[1], color: '#f7931a' },
-    { title: '24h Volume', value: '$' + (Math.random()*50+10).toFixed(1) + 'B', change: changes[2], color: 'var(--cyan)' },
-    { title: 'Active Positions', value: COINS.length.toString(), change: null, color: 'var(--magenta)' },
+    { title: 'Portfolio Value', value: total,            fmt: v => '$' + v.toFixed(2), change: changes[0], color: 'var(--green)', idx: 0 },
+    { title: 'BTC Price',       value: COINS[0].price,   fmt: v => '$' + v.toFixed(2), change: changes[1], color: '#f7931a',      idx: 1 },
+    { title: '24h Volume',      value: Math.random()*50+10, fmt: v => '$' + v.toFixed(1) + 'B', change: changes[2], color: 'var(--cyan)', idx: 2 },
+    { title: 'Active Positions',value: COINS.length,     fmt: v => Math.round(v).toString(), change: null, color: 'var(--magenta)', idx: 3 },
   ];
-  document.getElementById('kpiCards').innerHTML = kpis.map(k => `
-    <div class="card">
-      <div class="card-title">${k.title}</div>
-      <div class="card-value" style="color:${k.color}">${k.value}</div>
-      ${k.change !== null ? `<div class="card-change ${k.change >= 0 ? 'positive' : 'negative'}">${k.change >= 0 ? '▲' : '▼'} ${Math.abs(k.change).toFixed(2)}%</div>` : ''}
-    </div>
-  `).join('');
+
+  const container = document.getElementById('kpiCards');
+  if (!kpisInited) {
+    container.innerHTML = kpis.map((k, i) => `
+      <div class="card" id="kpi-${i}">
+        <div class="card-title">${k.title}</div>
+        <div class="card-value" id="kpi-val-${i}" style="color:${k.color}">${k.fmt(k.value)}</div>
+        ${k.change !== null ? `<div class="card-change" id="kpi-chg-${i}"></div>` : '<div style="height:16px"></div>'}
+        <canvas class="kpi-sparkline" id="spark-${i}"></canvas>
+      </div>
+    `).join('');
+    kpisInited = true;
+    prevKpiValues = kpis.map(k => k.value);
+    AnimEngine.staggerEntrance(container);
+    return;
+  }
+
+  kpis.forEach((k, i) => {
+    const valEl = document.getElementById('kpi-val-' + i);
+    const chgEl = document.getElementById('kpi-chg-' + i);
+    if (valEl) {
+      const prev = prevKpiValues[i];
+      if (prev !== null && Math.abs(k.value - prev) > 0.001) {
+        AnimEngine.animateNumber(valEl, prev, k.value, 500, k.fmt);
+        AnimEngine.flashColor(valEl, k.value - prev);
+      } else {
+        valEl.textContent = k.fmt(k.value);
+      }
+    }
+    if (chgEl && k.change !== null) {
+      const pos = k.change >= 0;
+      chgEl.className = 'card-change ' + (pos ? 'positive' : 'negative');
+      chgEl.textContent = (pos ? '\u25B2 ' : '\u25BC ') + Math.abs(k.change).toFixed(2) + '%';
+    }
+  });
+  prevKpiValues = kpis.map(k => k.value);
+  SparklineModule.drawAll();
 }
 
-// ─── Price Chart ────────────────────────────────
+// =========================================================
+//  PRICE CHART
+// =========================================================
 function drawPriceChart() {
   const canvas = document.getElementById('priceChart');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   canvas.width = canvas.offsetWidth * 2;
   canvas.height = 280 * 2;
@@ -197,7 +487,7 @@ function drawPriceChart() {
   const range = max - min;
 
   // Grid
-  ctx.strokeStyle = '#1e1e2e';
+  ctx.strokeStyle = '#1a1a2e';
   ctx.lineWidth = 0.5;
   for (let i = 0; i < 5; i++) {
     const y = (h - 30) * i / 4 + 10;
@@ -210,16 +500,16 @@ function drawPriceChart() {
   // Gradient fill
   const grad = ctx.createLinearGradient(0, 0, 0, h);
   const color = COINS[selectedCoin].color;
-  grad.addColorStop(0, color + '33');
+  grad.addColorStop(0, color + '30');
   grad.addColorStop(1, color + '00');
   ctx.beginPath();
-  ctx.moveTo(40, h - 20);
   data.forEach((p, i) => {
     const x = 40 + (i / (data.length - 1)) * (w - 50);
     const y = 10 + ((max - p) / range) * (h - 40);
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   });
   ctx.lineTo(40 + (w - 50), h - 20);
+  ctx.lineTo(40, h - 20);
   ctx.closePath();
   ctx.fillStyle = grad;
   ctx.fill();
@@ -229,7 +519,7 @@ function drawPriceChart() {
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
   ctx.shadowColor = color;
-  ctx.shadowBlur = 8;
+  ctx.shadowBlur = 10;
   data.forEach((p, i) => {
     const x = 40 + (i / (data.length - 1)) * (w - 50);
     const y = 10 + ((max - p) / range) * (h - 40);
@@ -238,21 +528,27 @@ function drawPriceChart() {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Current price dot
+  // Current price dot + label
   const lastX = w - 10;
   const lastY = 10 + ((max - data[data.length - 1]) / range) * (h - 40);
   ctx.beginPath();
-  ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+  ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
   ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 12;
   ctx.fill();
+  ctx.shadowBlur = 0;
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 12px system-ui';
-  ctx.fillText('$' + data[data.length - 1].toFixed(2), lastX - 80, lastY - 10);
+  ctx.fillText('$' + data[data.length - 1].toFixed(2), lastX - 85, lastY - 12);
 }
 
-// ─── Donut Chart ────────────────────────────────
+// =========================================================
+//  DONUT CHART
+// =========================================================
 function drawDonut() {
   const canvas = document.getElementById('donutChart');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   canvas.width = 360; canvas.height = 360;
   const cx = 180, cy = 180, r = 70, rInner = 45;
@@ -266,29 +562,29 @@ function drawDonut() {
     ctx.closePath();
     ctx.fillStyle = c.color;
     ctx.shadowColor = c.color;
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 14;
     ctx.fill();
     ctx.shadowBlur = 0;
     start += angle;
   });
 
-  // Center text
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 16px system-ui';
   ctx.textAlign = 'center';
   ctx.fillText('100%', cx, cy + 6);
 
-  // Legend
   document.getElementById('donutLegend').innerHTML = COINS.map(c => `
     <div class="legend-item">
-      <span class="legend-dot" style="background:${c.color}"></span>
+      <span class="legend-dot" style="background:${c.color};box-shadow:0 0 6px ${c.color}"></span>
       <span>${c.sym}</span>
       <span style="color:var(--muted);margin-left:auto">${c.alloc}%</span>
     </div>
   `).join('');
 }
 
-// ─── Transactions Table ─────────────────────────
+// =========================================================
+//  TRANSACTIONS TABLE
+// =========================================================
 function renderTransactions() {
   document.getElementById('txBody').innerHTML = transactions.map(tx => `
     <tr>
@@ -302,21 +598,447 @@ function renderTransactions() {
   `).join('');
 }
 
-// ─── Alerts Panel ───────────────────────────────
+// =========================================================
+//  ALERTS PANEL
+// =========================================================
 function renderAlerts() {
   document.getElementById('alertsPanel').innerHTML = alerts.map(a => `
     <div class="alert alert-${a.level}">
-      <div>${a.level === 'high' ? '🔴' : a.level === 'medium' ? '🟡' : '🔵'} ${a.msg}</div>
+      <div>${a.level === 'high' ? '\uD83D\uDD34' : a.level === 'medium' ? '\uD83D\uDFE1' : '\uD83D\uDD35'} ${a.msg}</div>
       <div class="alert-time">${a.time}</div>
     </div>
   `).join('');
 }
 
-// ─── Coin Tabs ──────────────────────────────────
+// =========================================================
+//  GAUGE MODULE (Fear & Greed)
+// =========================================================
+const GaugeModule = {
+  value: 42,
+  target: 42,
+  velocity: 0,
+  needleAngle: Math.PI * 0.42,
+  needleTarget: Math.PI * 0.42,
+  _rafId: null,
+
+  init() {
+    this.target = 30 + Math.random() * 40;
+    this.value = this.target;
+    this.needleAngle = Math.PI * (this.value / 100);
+    this.needleTarget = this.needleAngle;
+    this._loop();
+    this.draw();
+  },
+
+  tick() {
+    this.velocity += (Math.random() - 0.5) * 4;
+    this.velocity *= 0.85;
+    this.target = Math.max(0, Math.min(100, this.target + this.velocity * 0.3));
+    this.needleTarget = Math.PI * (this.target / 100);
+  },
+
+  _loop() {
+    this.needleAngle += (this.needleTarget - this.needleAngle) * 0.06;
+    this.value += (this.target - this.value) * 0.06;
+    this.draw();
+    this._rafId = requestAnimationFrame(() => this._loop());
+  },
+
+  getWord(v) {
+    if (v < 20) return 'Extreme Fear';
+    if (v < 40) return 'Fear';
+    if (v < 60) return 'Neutral';
+    if (v < 80) return 'Greed';
+    return 'Extreme Greed';
+  },
+
+  getColor(v) {
+    if (v < 20) return '#ff2244';
+    if (v < 40) return '#ff6b35';
+    if (v < 60) return '#ffe600';
+    if (v < 80) return '#88dd00';
+    return '#00ff88';
+  },
+
+  draw() {
+    const canvas = document.getElementById('gaugeCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = 2;
+    const cw = 260, ch = 140;
+    canvas.width = cw * dpr;
+    canvas.height = ch * dpr;
+    canvas.style.width = cw + 'px';
+    canvas.style.height = ch + 'px';
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cw, ch);
+
+    const cx = cw / 2, cy = ch - 10;
+    const r = 100;
+    const lineW = 14;
+
+    // Draw arc segments
+    const segments = [
+      { from: 0,    to: 0.2,  color: '#ff2244' },
+      { from: 0.2,  to: 0.4,  color: '#ff6b35' },
+      { from: 0.4,  to: 0.6,  color: '#ffe600' },
+      { from: 0.6,  to: 0.8,  color: '#88dd00' },
+      { from: 0.8,  to: 1.0,  color: '#00ff88' },
+    ];
+
+    segments.forEach(seg => {
+      const startA = Math.PI + seg.from * Math.PI;
+      const endA = Math.PI + seg.to * Math.PI;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, startA, endA);
+      ctx.strokeStyle = seg.color;
+      ctx.lineWidth = lineW;
+      ctx.lineCap = 'butt';
+      ctx.globalAlpha = 0.25;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // Active arc (filled to current value)
+    const activeEnd = Math.PI + (this.value / 100) * Math.PI;
+    const grad = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
+    grad.addColorStop(0, '#ff2244');
+    grad.addColorStop(0.25, '#ff6b35');
+    grad.addColorStop(0.5, '#ffe600');
+    grad.addColorStop(0.75, '#88dd00');
+    grad.addColorStop(1, '#00ff88');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI, activeEnd);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = lineW;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Needle
+    const needleA = Math.PI + this.needleAngle;
+    const needleLen = r - 24;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(needleA);
+    ctx.beginPath();
+    ctx.moveTo(0, -3);
+    ctx.lineTo(needleLen, 0);
+    ctx.lineTo(0, 3);
+    ctx.closePath();
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.restore();
+
+    // Center dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+    ctx.fillStyle = this.getColor(this.value);
+    ctx.shadowColor = this.getColor(this.value);
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Scale labels
+    ctx.font = '9px system-ui';
+    ctx.fillStyle = '#555';
+    ctx.textAlign = 'center';
+    ctx.fillText('0', cx - r - 4, cy + 14);
+    ctx.fillText('100', cx + r + 6, cy + 14);
+    ctx.fillText('50', cx, cy - r + 10);
+
+    // Update text
+    const valEl = document.getElementById('gaugeValue');
+    const wordEl = document.getElementById('gaugeWord');
+    if (valEl) {
+      valEl.textContent = Math.round(this.value);
+      valEl.style.color = this.getColor(this.value);
+    }
+    if (wordEl) wordEl.textContent = this.getWord(this.value);
+  }
+};
+
+// =========================================================
+//  HEATMAP MODULE
+// =========================================================
+const HeatmapModule = {
+  changes: COINS.map(() => (Math.random() - 0.4) * 12),
+  rects: [],
+  mcaps: [800, 400, 80, 15, 12], // billions, rough
+
+  init() {
+    const canvas = document.getElementById('heatmapCanvas');
+    if (!canvas) return;
+    canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+    canvas.addEventListener('mouseleave', () => {
+      document.getElementById('heatmapTip').style.opacity = '0';
+    });
+    this.draw();
+  },
+
+  tick() {
+    this.changes = this.changes.map(c => {
+      c += (Math.random() - 0.48) * 0.3;
+      return Math.max(-15, Math.min(15, c));
+    });
+  },
+
+  layout(w, h) {
+    // Simple treemap: BTC+ETH in top row, SOL+AVAX+LINK in bottom row
+    const totalAlloc = COINS.reduce((s, c) => s + c.alloc, 0);
+    const rects = [];
+    // Row 1: BTC, ETH (70%)
+    const row1H = h * 0.6;
+    const btcW = w * (COINS[0].alloc / (COINS[0].alloc + COINS[1].alloc));
+    rects.push({ x: 0, y: 0, w: btcW, h: row1H, coinIdx: 0 });
+    rects.push({ x: btcW, y: 0, w: w - btcW, h: row1H, coinIdx: 1 });
+    // Row 2: SOL, AVAX, LINK (30%)
+    const row2Y = row1H;
+    const row2H = h - row1H;
+    const row2Total = COINS[2].alloc + COINS[3].alloc + COINS[4].alloc;
+    let rx = 0;
+    for (let i = 2; i < 5; i++) {
+      const rw = w * (COINS[i].alloc / row2Total);
+      rects.push({ x: rx, y: row2Y, w: rw, h: row2H, coinIdx: i });
+      rx += rw;
+    }
+    return rects;
+  },
+
+  interpolateColor(pct) {
+    // -15 to +15 maps to red to green
+    const t = Math.max(0, Math.min(1, (pct + 15) / 30));
+    // Red -> Orange -> Green
+    const r = Math.round(255 * (1 - t) * 0.85);
+    const g = Math.round(255 * t * 0.65);
+    const b = Math.round(40 + t * 20);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  },
+
+  draw() {
+    const canvas = document.getElementById('heatmapCanvas');
+    if (!canvas) return;
+    const wrap = canvas.parentElement;
+    const w = wrap.offsetWidth;
+    const h = wrap.offsetHeight;
+    if (w === 0 || h === 0) return;
+    canvas.width = w * 2;
+    canvas.height = h * 2;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+    ctx.clearRect(0, 0, w, h);
+
+    const gap = 3;
+    this.rects = this.layout(w, h);
+
+    this.rects.forEach(rect => {
+      const c = COINS[rect.coinIdx];
+      const chg = this.changes[rect.coinIdx];
+      const color = this.interpolateColor(chg);
+
+      // Rounded rect
+      const rx = rect.x + gap / 2;
+      const ry = rect.y + gap / 2;
+      const rw = rect.w - gap;
+      const rh = rect.h - gap;
+      const radius = 8;
+
+      ctx.beginPath();
+      ctx.moveTo(rx + radius, ry);
+      ctx.lineTo(rx + rw - radius, ry);
+      ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + radius);
+      ctx.lineTo(rx + rw, ry + rh - radius);
+      ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - radius, ry + rh);
+      ctx.lineTo(rx + radius, ry + rh);
+      ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - radius);
+      ctx.lineTo(rx, ry + radius);
+      ctx.quadraticCurveTo(rx, ry, rx + radius, ry);
+      ctx.closePath();
+
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.75;
+      if (chg > 0) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 8;
+      }
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+
+      // Border
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Text
+      const fontSize = Math.min(rw, rh) * 0.22;
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold ' + Math.max(11, fontSize) + 'px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(c.sym, rx + rw / 2, ry + rh / 2 - 8);
+
+      ctx.font = Math.max(10, fontSize * 0.75) + 'px system-ui';
+      ctx.fillStyle = chg >= 0 ? '#bbffcc' : '#ffbbbb';
+      ctx.fillText((chg >= 0 ? '+' : '') + chg.toFixed(1) + '%', rx + rw / 2, ry + rh / 2 + 10);
+
+      // Market cap label
+      ctx.font = '9px system-ui';
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.fillText('$' + this.mcaps[rect.coinIdx] + 'B', rx + rw / 2, ry + rh / 2 + 26);
+    });
+  },
+
+  onMouseMove(e) {
+    const canvas = document.getElementById('heatmapCanvas');
+    const tip = document.getElementById('heatmapTip');
+    if (!canvas || !tip) return;
+    const bounds = canvas.getBoundingClientRect();
+    const mx = (e.clientX - bounds.left) / bounds.width * canvas.offsetWidth;
+    const my = (e.clientY - bounds.top) / bounds.height * canvas.offsetHeight;
+
+    let hit = null;
+    for (const rect of this.rects) {
+      if (mx >= rect.x && mx <= rect.x + rect.w && my >= rect.y && my <= rect.y + rect.h) {
+        hit = rect;
+        break;
+      }
+    }
+
+    if (hit) {
+      const c = COINS[hit.coinIdx];
+      const chg = this.changes[hit.coinIdx];
+      tip.innerHTML = '<strong style="color:' + c.color + '">' + c.sym + '</strong> ' + c.name +
+        '<br>Price: <strong>$' + c.price.toFixed(2) + '</strong>' +
+        '<br>24h: <span style="color:' + (chg >= 0 ? 'var(--green)' : 'var(--red)') + '">' + (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%</span>' +
+        '<br>MCap: $' + this.mcaps[hit.coinIdx] + 'B';
+      tip.style.opacity = '1';
+      tip.style.left = Math.min(e.offsetX + 12, canvas.offsetWidth - 160) + 'px';
+      tip.style.top = (e.offsetY - 10) + 'px';
+    } else {
+      tip.style.opacity = '0';
+    }
+  }
+};
+
+// =========================================================
+//  TRADE MODAL
+// =========================================================
+const TradeModal = {
+  _open: false,
+  mode: 'buy',
+  assetIdx: 0,
+
+  open() {
+    this._open = true;
+    const modal = document.getElementById('tradeModal');
+    modal.classList.add('open');
+    const sel = document.getElementById('tradeAsset');
+    sel.innerHTML = COINS.map((c, i) => '<option value="' + i + '">' + c.sym + ' - ' + c.name + '</option>').join('');
+    this.assetIdx = 0;
+    document.getElementById('tradeAmount').value = '';
+    this.setMode('buy');
+    this.update();
+  },
+
+  close() {
+    this._open = false;
+    document.getElementById('tradeModal').classList.remove('open');
+    document.getElementById('tradeSuccess').classList.remove('show');
+  },
+
+  isOpen() { return this._open; },
+
+  setMode(mode) {
+    this.mode = mode;
+    const buyTab = document.getElementById('tabBuy');
+    const sellTab = document.getElementById('tabSell');
+    const btn = document.getElementById('tradeSubmitBtn');
+    buyTab.className = 'modal-tab buy' + (mode === 'buy' ? ' active' : '');
+    sellTab.className = 'modal-tab sell' + (mode === 'sell' ? ' active' : '');
+    btn.className = 'modal-btn ' + (mode === 'buy' ? 'buy-btn' : 'sell-btn');
+    btn.textContent = 'CONFIRM ' + mode.toUpperCase();
+    this.update();
+  },
+
+  update() {
+    const sel = document.getElementById('tradeAsset');
+    this.assetIdx = parseInt(sel.value) || 0;
+    const coin = COINS[this.assetIdx];
+    const amount = parseFloat(document.getElementById('tradeAmount').value) || 0;
+    const total = coin.price * amount;
+    document.getElementById('tradeLivePrice').textContent = '$' + coin.price.toFixed(2);
+    const totalEl = document.getElementById('tradeTotal');
+    totalEl.textContent = '$' + total.toFixed(2);
+    totalEl.style.color = this.mode === 'buy' ? 'var(--green)' : 'var(--red)';
+  },
+
+  syncPrice() {
+    if (!this._open) return;
+    this.update();
+  },
+
+  submit() {
+    const amountInput = document.getElementById('tradeAmount');
+    const amount = parseFloat(amountInput.value);
+    if (!amount || amount <= 0) {
+      amountInput.classList.add('input-error');
+      setTimeout(() => amountInput.classList.remove('input-error'), 500);
+      return;
+    }
+    const coin = COINS[this.assetIdx];
+    const total = coin.price * amount;
+
+    // Show success
+    const detail = document.getElementById('successDetail');
+    detail.textContent = this.mode.toUpperCase() + ' ' + amount.toFixed(4) + ' ' + coin.sym + ' @ $' + coin.price.toFixed(2) + ' = $' + total.toFixed(2);
+    document.getElementById('tradeSuccess').classList.add('show');
+
+    // Add transaction
+    transactions.unshift({
+      type: this.mode === 'buy' ? 'buy' : 'sell',
+      sym: coin.sym,
+      amount: amount.toFixed(4),
+      price: coin.price.toFixed(2),
+      pl: ((Math.random() - 0.45) * total * 0.03).toFixed(2),
+      time: 'just now'
+    });
+    if (transactions.length > 15) transactions.pop();
+    renderTransactions();
+
+    // Update alert
+    alerts.unshift({
+      level: 'low',
+      msg: (this.mode === 'buy' ? 'Bought' : 'Sold') + ' ' + amount.toFixed(4) + ' ' + coin.sym,
+      time: 'just now'
+    });
+    if (alerts.length > 8) alerts.pop();
+    renderAlerts();
+
+    const notif = document.getElementById('notifCount');
+    notif.textContent = parseInt(notif.textContent) + 1;
+
+    setTimeout(() => {
+      document.getElementById('tradeSuccess').classList.remove('show');
+      this.close();
+    }, 2200);
+  }
+};
+
+// Backdrop click + Escape
+document.getElementById('tradeModal').addEventListener('click', function(e) {
+  if (e.target === this) TradeModal.close();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') TradeModal.close();
+});
+
+// =========================================================
+//  COIN TABS
+// =========================================================
 function renderTabs() {
-  document.getElementById('coinTabs').innerHTML = COINS.map((c, i) => `
-    <button class="chart-tab ${i === selectedCoin ? 'active' : ''}" onclick="selectCoin(${i})">${c.sym}</button>
-  `).join('');
+  document.getElementById('coinTabs').innerHTML = COINS.map((c, i) =>
+    '<button class="chart-tab ' + (i === selectedCoin ? 'active' : '') + '" onclick="selectCoin(' + i + ')">' + c.sym + '</button>'
+  ).join('');
 }
 function selectCoin(i) {
   selectedCoin = i;
@@ -325,16 +1047,24 @@ function selectCoin(i) {
   drawPriceChart();
 }
 
-// ─── Live Updates ───────────────────────────────
+// =========================================================
+//  TICK (Live Updates)
+// =========================================================
 function tick() {
   COINS.forEach((c, i) => {
     const delta = (Math.random() - 0.48) * c.price * 0.003;
     c.price += delta;
     priceHistory[i].push(c.price);
     if (priceHistory[i].length > 80) priceHistory[i].shift();
+    SparklineModule.push(i, c.price);
   });
+
   renderKPIs();
   drawPriceChart();
+  GaugeModule.tick();
+  HeatmapModule.tick();
+  HeatmapModule.draw();
+  if (TradeModal.isOpen()) TradeModal.syncPrice();
 
   // Occasional new transaction
   if (Math.random() > 0.7) {
@@ -346,9 +1076,9 @@ function tick() {
   // Occasional alert
   if (Math.random() > 0.92) {
     const msgs = [
-      { level:'high', msg:`${COINS[Math.floor(Math.random()*5)].sym} flash crash detected -${(Math.random()*5+1).toFixed(1)}%` },
-      { level:'medium', msg:`Whale alert: ${(Math.random()*500+100).toFixed(0)} BTC moved` },
-      { level:'low', msg:`Staking reward: ${(Math.random()*10).toFixed(2)} SOL earned` },
+      { level:'high',   msg: COINS[Math.floor(Math.random()*5)].sym + ' flash crash detected -' + (Math.random()*5+1).toFixed(1) + '%' },
+      { level:'medium', msg: 'Whale alert: ' + (Math.random()*500+100).toFixed(0) + ' BTC moved' },
+      { level:'low',    msg: 'Staking reward: ' + (Math.random()*10).toFixed(2) + ' SOL earned' },
     ];
     const a = msgs[Math.floor(Math.random()*3)];
     a.time = 'just now';
@@ -359,15 +1089,35 @@ function tick() {
   }
 }
 
-// ─── Init ───────────────────────────────────────
+// =========================================================
+//  INIT
+// =========================================================
 renderKPIs();
 renderTabs();
 drawPriceChart();
 drawDonut();
 renderTransactions();
 renderAlerts();
+GaugeModule.init();
+HeatmapModule.init();
+
+// Stagger entrance for all sections
+setTimeout(() => {
+  AnimEngine.applyGlowToCards();
+  document.querySelectorAll('.grid').forEach(grid => {
+    AnimEngine.staggerEntrance(grid);
+  });
+}, 50);
+
 setInterval(tick, 2000);
-window.addEventListener('resize', () => { drawPriceChart(); drawDonut(); });
+
+window.addEventListener('resize', () => {
+  drawPriceChart();
+  drawDonut();
+  HeatmapModule.draw();
+  GaugeModule.draw();
+  SparklineModule.drawAll();
+});
 </script>
 </body>
 </html>
