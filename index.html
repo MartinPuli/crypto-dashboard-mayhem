@@ -140,6 +140,81 @@ canvas{display:block;width:100%;border-radius:8px}
 .num-flash-down{color:var(--red)!important;text-shadow:0 0 8px rgba(255,68,68,0.4);transition:all 0.15s}
 .input-error{border-color:var(--red)!important;animation:shake 0.4s}
 
+/* Profile Panel */
+.profile-overlay{position:fixed;inset:0;background:rgba(2,2,8,0.85);backdrop-filter:blur(6px);z-index:90;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.profile-overlay.open{opacity:1;pointer-events:all}
+.profile-panel{position:fixed;top:0;right:-440px;width:min(420px,92vw);height:100vh;background:var(--card);border-left:1px solid var(--border);z-index:91;transition:right 0.4s cubic-bezier(0.22,1,0.36,1);overflow-y:auto;display:flex;flex-direction:column}
+.profile-panel.open{right:0}
+.profile-panel-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+.profile-panel-title{font-size:18px;font-weight:800;letter-spacing:-0.3px}
+.profile-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;transition:color 0.2s}
+.profile-close:hover{color:var(--text)}
+.profile-avatar-wrap{display:flex;flex-direction:column;align-items:center;padding:28px 24px 16px;gap:12px}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:var(--bg);box-shadow:0 0 24px rgba(0,255,136,0.2)}
+.profile-name{font-size:20px;font-weight:800}
+.profile-since{font-size:11px;color:var(--muted)}
+.profile-section{padding:16px 24px;border-top:1px solid var(--border)}
+.profile-section-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;font-weight:600}
+.profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.profile-stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.profile-stat-value{font-size:20px;font-weight:800;color:var(--green)}
+.profile-stat-label{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:0.5px}
+.risk-selector{display:flex;gap:8px;margin-top:4px}
+.risk-btn{flex:1;padding:10px 8px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-size:12px;font-weight:700;text-align:center;transition:all 0.25s}
+.risk-btn:hover{border-color:var(--green);color:var(--text)}
+.risk-btn.active-conservative{border-color:#00e5ff;background:rgba(0,229,255,0.08);color:#00e5ff}
+.risk-btn.active-moderate{border-color:#ffe600;background:rgba(255,230,0,0.08);color:#ffe600}
+.risk-btn.active-aggressive{border-color:#ff4444;background:rgba(255,68,68,0.08);color:#ff4444}
+.risk-indicator{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--border);margin-top:10px;font-size:12px}
+.risk-dot{width:10px;height:10px;border-radius:50%}
+.fav-coins{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.fav-coin{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-size:11px;font-weight:700;transition:all 0.2s}
+.fav-coin.selected{border-color:var(--green);background:rgba(0,255,136,0.08);color:var(--green)}
+.profile-history{max-height:200px;overflow-y:auto;font-size:11px}
+.profile-history-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(26,26,46,0.5)}
+.profile-history-item:last-child{border-bottom:none}
+.profile-edit-input{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:14px;width:100%;outline:none;transition:border-color 0.2s}
+.profile-edit-input:focus{border-color:var(--green)}
+.profile-btn-icon{background:none;border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.profile-btn-icon:hover{border-color:var(--green);color:var(--green)}
+
+/* Onboarding Modal */
+.onboard-overlay{position:fixed;inset:0;background:rgba(2,2,8,0.95);backdrop-filter:blur(12px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s}
+.onboard-overlay.open{opacity:1;pointer-events:all}
+.onboard-box{background:var(--card);border:1px solid var(--border);border-radius:20px;width:min(480px,92vw);padding:36px;transform:translateY(20px) scale(0.97);transition:transform 0.4s cubic-bezier(0.22,1,0.36,1);position:relative;overflow:hidden}
+.onboard-overlay.open .onboard-box{transform:translateY(0) scale(1)}
+.onboard-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--cyan),var(--magenta))}
+.onboard-step{display:none}
+.onboard-step.active{display:block;animation:fadeIn 0.35s ease}
+.onboard-title{font-size:24px;font-weight:900;margin-bottom:6px;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.onboard-subtitle{color:var(--muted);font-size:13px;margin-bottom:24px}
+.onboard-progress{display:flex;gap:6px;margin-bottom:24px}
+.onboard-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all 0.3s}
+.onboard-dot.active{background:var(--green);box-shadow:0 0 8px var(--green)}
+.onboard-dot.done{background:var(--cyan)}
+.onboard-next{background:linear-gradient(135deg,var(--green),var(--cyan));border:none;color:var(--bg);padding:12px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;transition:all 0.25s;width:100%;margin-top:20px}
+.onboard-next:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.onboard-risk-cards{display:flex;gap:10px}
+.onboard-risk-card{flex:1;padding:16px 12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);cursor:pointer;text-align:center;transition:all 0.25s}
+.onboard-risk-card:hover{border-color:var(--muted)}
+.onboard-risk-card.selected{transform:translateY(-2px)}
+.onboard-risk-card.sel-conservative{border-color:#00e5ff;box-shadow:0 4px 20px rgba(0,229,255,0.15)}
+.onboard-risk-card.sel-moderate{border-color:#ffe600;box-shadow:0 4px 20px rgba(255,230,0,0.15)}
+.onboard-risk-card.sel-aggressive{border-color:#ff4444;box-shadow:0 4px 20px rgba(255,68,68,0.15)}
+.onboard-risk-icon{font-size:32px;margin-bottom:8px}
+.onboard-risk-name{font-size:14px;font-weight:800;margin-bottom:4px}
+.onboard-risk-desc{font-size:10px;color:var(--muted);line-height:1.4}
+
+/* Navbar profile icon */
+.nav-profile{display:flex;align-items:center;gap:8px;cursor:pointer;transition:all 0.2s;padding:4px 8px;border-radius:8px}
+.nav-profile:hover{background:rgba(0,255,136,0.05)}
+.nav-avatar-sm{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--bg)}
+.nav-profile-name{font-size:12px;font-weight:600;color:var(--text);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-risk-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700}
+.risk-conservative .nav-risk-badge{background:rgba(0,229,255,0.12);color:#00e5ff}
+.risk-moderate .nav-risk-badge{background:rgba(255,230,0,0.12);color:#ffe600}
+.risk-aggressive .nav-risk-badge{background:rgba(255,68,68,0.12);color:#ff4444}
+
 /* Responsive */
 @media(max-width:900px){
   .grid-top{grid-template-columns:1fr 1fr}
@@ -148,6 +223,7 @@ canvas{display:block;width:100%;border-radius:8px}
 @media(max-width:500px){
   .grid-top{grid-template-columns:1fr}
   .navbar{flex-direction:column;text-align:center}
+  .onboard-risk-cards{flex-direction:column}
 }
 </style>
 </head>
@@ -161,6 +237,13 @@ canvas{display:block;width:100%;border-radius:8px}
       <span>Balance: <span class="wallet-bal" id="totalBal">$0.00</span></span>
       <span class="notif-icon">&#128276;<span class="notif-badge" id="notifCount">3</span></span>
       <button class="trade-btn" onclick="TradeModal.open()">+ Trade</button>
+      <div class="nav-profile" id="navProfile" onclick="UserProfile.open()">
+        <div class="nav-avatar-sm" id="navAvatar">?</div>
+        <div>
+          <div class="nav-profile-name" id="navProfileName">Usuario</div>
+          <span class="nav-risk-badge" id="navRiskBadge"></span>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -218,6 +301,101 @@ canvas{display:block;width:100%;border-radius:8px}
         <canvas id="heatmapCanvas"></canvas>
         <div class="heatmap-tooltip" id="heatmapTip"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Panel -->
+<div class="profile-overlay" id="profileOverlay" onclick="UserProfile.close()"></div>
+<div class="profile-panel" id="profilePanel">
+  <div class="profile-panel-header">
+    <div class="profile-panel-title">Mi Perfil</div>
+    <button class="profile-close" onclick="UserProfile.close()">&#x2715;</button>
+  </div>
+  <div class="profile-avatar-wrap">
+    <div class="profile-avatar" id="profileAvatar">?</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="profile-name" id="profileDisplayName">Usuario</span>
+      <button class="profile-btn-icon" onclick="UserProfile.editName()" title="Editar nombre">&#9998;</button>
+    </div>
+    <div class="profile-since" id="profileSince">Miembro desde hoy</div>
+  </div>
+  <div class="profile-section">
+    <div class="profile-section-title">Estadisticas</div>
+    <div class="profile-stats">
+      <div class="profile-stat"><div class="profile-stat-value" id="statTotalTrades">0</div><div class="profile-stat-label">Trades</div></div>
+      <div class="profile-stat"><div class="profile-stat-value" id="statWinRate">0%</div><div class="profile-stat-label">Win Rate</div></div>
+      <div class="profile-stat"><div class="profile-stat-value" id="statTotalVolume">$0</div><div class="profile-stat-label">Volumen</div></div>
+      <div class="profile-stat"><div class="profile-stat-value" id="statFavCoin">-</div><div class="profile-stat-label">Coin Favorita</div></div>
+    </div>
+  </div>
+  <div class="profile-section">
+    <div class="profile-section-title">Perfil de Riesgo</div>
+    <div class="risk-selector" id="riskSelector">
+      <button class="risk-btn" data-risk="conservative" onclick="UserMemory.setRisk('conservative')">&#x1F6E1;&#xFE0F; Conservador</button>
+      <button class="risk-btn" data-risk="moderate" onclick="UserMemory.setRisk('moderate')">&#x2696;&#xFE0F; Moderado</button>
+      <button class="risk-btn" data-risk="aggressive" onclick="UserMemory.setRisk('aggressive')">&#x1F525; Agresivo</button>
+    </div>
+    <div class="risk-indicator" id="riskIndicator">
+      <span class="risk-dot" id="riskDot"></span>
+      <span id="riskDescription">Selecciona tu perfil de riesgo</span>
+    </div>
+  </div>
+  <div class="profile-section">
+    <div class="profile-section-title">Coins Favoritas</div>
+    <div class="fav-coins" id="favCoins"></div>
+  </div>
+  <div class="profile-section">
+    <div class="profile-section-title">Historial de Trades</div>
+    <div class="profile-history" id="profileHistory">
+      <div style="color:var(--muted);font-size:12px;padding:12px 0;text-align:center">No hay trades todavia</div>
+    </div>
+  </div>
+  <div class="profile-section" style="margin-top:auto;border-top:1px solid var(--border)">
+    <button onclick="UserMemory.reset()" style="background:none;border:1px solid var(--red);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;width:100%;transition:all 0.2s">Resetear Datos</button>
+  </div>
+</div>
+
+<!-- Onboarding -->
+<div class="onboard-overlay" id="onboardOverlay">
+  <div class="onboard-box">
+    <div class="onboard-progress" id="onboardProgress"></div>
+    <!-- Step 1: Welcome + Name -->
+    <div class="onboard-step active" id="onboardStep1">
+      <div class="onboard-title">Bienvenido a CryptoVault</div>
+      <div class="onboard-subtitle">Personalicemos tu experiencia. Como te llamas?</div>
+      <input class="profile-edit-input" id="onboardName" type="text" placeholder="Tu nombre..." maxlength="20" autofocus>
+      <button class="onboard-next" onclick="Onboarding.next()">Siguiente</button>
+    </div>
+    <!-- Step 2: Risk Profile -->
+    <div class="onboard-step" id="onboardStep2">
+      <div class="onboard-title">Tu Perfil de Riesgo</div>
+      <div class="onboard-subtitle">Como te sentis con la volatilidad?</div>
+      <div class="onboard-risk-cards">
+        <div class="onboard-risk-card" onclick="Onboarding.selectRisk('conservative',this)">
+          <div class="onboard-risk-icon">&#x1F6E1;&#xFE0F;</div>
+          <div class="onboard-risk-name" style="color:#00e5ff">Conservador</div>
+          <div class="onboard-risk-desc">Preferis estabilidad. BTC y ETH son tu base. Minima exposicion a altcoins.</div>
+        </div>
+        <div class="onboard-risk-card" onclick="Onboarding.selectRisk('moderate',this)">
+          <div class="onboard-risk-icon">&#x2696;&#xFE0F;</div>
+          <div class="onboard-risk-name" style="color:#ffe600">Moderado</div>
+          <div class="onboard-risk-desc">Balance entre seguridad y oportunidad. Mix de blue chips y altcoins prometedoras.</div>
+        </div>
+        <div class="onboard-risk-card" onclick="Onboarding.selectRisk('aggressive',this)">
+          <div class="onboard-risk-icon">&#x1F525;</div>
+          <div class="onboard-risk-name" style="color:#ff4444">Agresivo</div>
+          <div class="onboard-risk-desc">Bancas la volatilidad. Altcoins, memecoins, alto riesgo alto reward.</div>
+        </div>
+      </div>
+      <button class="onboard-next" onclick="Onboarding.next()">Siguiente</button>
+    </div>
+    <!-- Step 3: Favorite Coins -->
+    <div class="onboard-step" id="onboardStep3">
+      <div class="onboard-title">Tus Coins Favoritas</div>
+      <div class="onboard-subtitle">Cuales queres seguir de cerca? (Elegí las que quieras)</div>
+      <div class="fav-coins" id="onboardCoins" style="justify-content:center"></div>
+      <button class="onboard-next" onclick="Onboarding.finish()">Empezar a Tradear &#x1F680;</button>
     </div>
   </div>
 </div>
@@ -994,14 +1172,19 @@ const TradeModal = {
     document.getElementById('tradeSuccess').classList.add('show');
 
     // Add transaction
-    transactions.unshift({
+    const tradePL = ((Math.random() - 0.45) * total * 0.03).toFixed(2);
+    const tradeRecord = {
       type: this.mode === 'buy' ? 'buy' : 'sell',
       sym: coin.sym,
       amount: amount.toFixed(4),
       price: coin.price.toFixed(2),
-      pl: ((Math.random() - 0.45) * total * 0.03).toFixed(2),
+      total: total.toFixed(2),
+      pl: tradePL,
       time: 'just now'
-    });
+    };
+    transactions.unshift(tradeRecord);
+    // Record in user memory
+    UserMemory.recordTrade(tradeRecord);
     if (transactions.length > 15) transactions.pop();
     renderTransactions();
 
@@ -1031,6 +1214,320 @@ document.getElementById('tradeModal').addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') TradeModal.close();
 });
+
+// =========================================================
+//  USER MEMORY (localStorage persistence)
+// =========================================================
+const UserMemory = {
+  KEY: 'cryptovault_user',
+  _data: null,
+
+  defaults() {
+    return {
+      name: '',
+      risk: 'moderate',       // conservative | moderate | aggressive
+      favCoins: [],            // ['BTC','ETH',...]
+      trades: [],              // {type,sym,amount,price,total,pl,timestamp}
+      joinedAt: Date.now(),
+      onboarded: false,
+      totalPL: 0,
+      sessionCount: 0,
+    };
+  },
+
+  load() {
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      this._data = raw ? { ...this.defaults(), ...JSON.parse(raw) } : this.defaults();
+    } catch(e) { this._data = this.defaults(); }
+    this._data.sessionCount++;
+    this.save();
+    return this._data;
+  },
+
+  save() {
+    try { localStorage.setItem(this.KEY, JSON.stringify(this._data)); } catch(e) {}
+  },
+
+  get() { return this._data || this.load(); },
+
+  setName(name) { this._data.name = name.trim().substring(0, 20); this.save(); UserProfile.refresh(); },
+  setRisk(risk) {
+    this._data.risk = risk;
+    this.save();
+    UserProfile.refreshRisk();
+    UserProfile.refreshNavbar();
+    // Adjust portfolio allocation based on risk
+    this.applyRiskToPortfolio();
+  },
+
+  toggleFavCoin(sym) {
+    const idx = this._data.favCoins.indexOf(sym);
+    if (idx >= 0) this._data.favCoins.splice(idx, 1);
+    else this._data.favCoins.push(sym);
+    this.save();
+    UserProfile.refreshFavCoins();
+  },
+
+  recordTrade(trade) {
+    const record = {
+      ...trade,
+      timestamp: Date.now(),
+    };
+    this._data.trades.unshift(record);
+    if (this._data.trades.length > 100) this._data.trades.pop();
+    // Update total P/L
+    this._data.totalPL += parseFloat(trade.pl) || 0;
+    this.save();
+    UserProfile.refreshStats();
+    UserProfile.refreshHistory();
+  },
+
+  getStats() {
+    const trades = this._data.trades;
+    const total = trades.length;
+    const wins = trades.filter(t => parseFloat(t.pl) > 0).length;
+    const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+    const totalVolume = trades.reduce((s, t) => s + (parseFloat(t.total) || 0), 0);
+    // Find most traded coin
+    const coinCounts = {};
+    trades.forEach(t => { coinCounts[t.sym] = (coinCounts[t.sym] || 0) + 1; });
+    const favCoin = Object.entries(coinCounts).sort((a, b) => b[1] - a[1])[0];
+    return { total, wins, winRate, totalVolume, favCoin: favCoin ? favCoin[0] : '-', totalPL: this._data.totalPL };
+  },
+
+  applyRiskToPortfolio() {
+    const risk = this._data.risk;
+    const allocations = {
+      conservative: [55, 30, 10, 3, 2],   // Heavy BTC/ETH
+      moderate:     [45, 25, 15, 10, 5],   // Balanced
+      aggressive:   [25, 20, 25, 18, 12],  // Heavy altcoins
+    };
+    const alloc = allocations[risk] || allocations.moderate;
+    COINS.forEach((c, i) => { c.alloc = alloc[i]; });
+    drawDonut();
+  },
+
+  getRiskAlerts() {
+    const risk = this._data.risk;
+    if (risk === 'conservative') return { threshold: 2, msg: 'Movimiento fuerte detectado' };
+    if (risk === 'aggressive') return { threshold: 8, msg: 'Caida significativa' };
+    return { threshold: 5, msg: 'Variacion notable' };
+  },
+
+  setOnboarded() { this._data.onboarded = true; this.save(); },
+  isOnboarded() { return this._data.onboarded; },
+
+  reset() {
+    if (!confirm('Seguro que queres borrar todos tus datos? Esto no se puede deshacer.')) return;
+    localStorage.removeItem(this.KEY);
+    this._data = this.defaults();
+    this.save();
+    UserProfile.refresh();
+    location.reload();
+  }
+};
+
+// =========================================================
+//  USER PROFILE UI
+// =========================================================
+const UserProfile = {
+  open() {
+    document.getElementById('profileOverlay').classList.add('open');
+    document.getElementById('profilePanel').classList.add('open');
+    this.refresh();
+  },
+
+  close() {
+    document.getElementById('profileOverlay').classList.remove('open');
+    document.getElementById('profilePanel').classList.remove('open');
+  },
+
+  refresh() {
+    this.refreshName();
+    this.refreshRisk();
+    this.refreshFavCoins();
+    this.refreshStats();
+    this.refreshHistory();
+    this.refreshNavbar();
+  },
+
+  refreshName() {
+    const data = UserMemory.get();
+    const name = data.name || 'Usuario';
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('profileAvatar').textContent = initial;
+    document.getElementById('profileDisplayName').textContent = name;
+    const joined = new Date(data.joinedAt);
+    document.getElementById('profileSince').textContent = 'Miembro desde ' + joined.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  },
+
+  refreshNavbar() {
+    const data = UserMemory.get();
+    const name = data.name || 'Usuario';
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('navAvatar').textContent = initial;
+    document.getElementById('navProfileName').textContent = name;
+    const badge = document.getElementById('navRiskBadge');
+    const riskLabels = { conservative: 'Conservador', moderate: 'Moderado', aggressive: 'Agresivo' };
+    badge.textContent = riskLabels[data.risk] || 'Moderado';
+    const nav = document.getElementById('navProfile');
+    nav.className = 'nav-profile risk-' + data.risk;
+  },
+
+  refreshRisk() {
+    const risk = UserMemory.get().risk;
+    const btns = document.querySelectorAll('#riskSelector .risk-btn');
+    btns.forEach(btn => {
+      const r = btn.dataset.risk;
+      btn.className = 'risk-btn' + (r === risk ? ' active-' + r : '');
+    });
+    const dot = document.getElementById('riskDot');
+    const desc = document.getElementById('riskDescription');
+    const configs = {
+      conservative: { color: '#00e5ff', text: 'Priorizas estabilidad. Bajo riesgo, retornos consistentes.' },
+      moderate:     { color: '#ffe600', text: 'Balance entre seguridad y oportunidad. Riesgo calculado.' },
+      aggressive:   { color: '#ff4444', text: 'Alta tolerancia al riesgo. Buscas maximo retorno.' },
+    };
+    const cfg = configs[risk] || configs.moderate;
+    dot.style.background = cfg.color;
+    dot.style.boxShadow = '0 0 8px ' + cfg.color;
+    desc.textContent = cfg.text;
+  },
+
+  refreshFavCoins() {
+    const favs = UserMemory.get().favCoins;
+    document.getElementById('favCoins').innerHTML = COINS.map(c =>
+      '<button class="fav-coin' + (favs.includes(c.sym) ? ' selected' : '') + '" onclick="UserMemory.toggleFavCoin(\'' + c.sym + '\')">' + c.sym + '</button>'
+    ).join('');
+  },
+
+  refreshStats() {
+    const stats = UserMemory.getStats();
+    document.getElementById('statTotalTrades').textContent = stats.total;
+    document.getElementById('statWinRate').textContent = stats.winRate + '%';
+    document.getElementById('statWinRate').style.color = stats.winRate >= 50 ? 'var(--green)' : stats.winRate > 0 ? 'var(--red)' : 'var(--muted)';
+    const vol = stats.totalVolume;
+    document.getElementById('statTotalVolume').textContent = vol >= 1000 ? '$' + (vol / 1000).toFixed(1) + 'K' : '$' + vol.toFixed(0);
+    document.getElementById('statFavCoin').textContent = stats.favCoin;
+  },
+
+  refreshHistory() {
+    const trades = UserMemory.get().trades;
+    const container = document.getElementById('profileHistory');
+    if (trades.length === 0) {
+      container.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:12px 0;text-align:center">No hay trades todavia</div>';
+      return;
+    }
+    container.innerHTML = trades.slice(0, 20).map(t => {
+      const date = new Date(t.timestamp);
+      const time = date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) + ' ' + date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      const plNum = parseFloat(t.pl);
+      const plColor = plNum >= 0 ? 'var(--green)' : 'var(--red)';
+      const typeColor = t.type === 'buy' ? 'var(--green)' : 'var(--red)';
+      return '<div class="profile-history-item">' +
+        '<span><span style="color:' + typeColor + ';font-weight:700;text-transform:uppercase">' + t.type + '</span> ' + t.amount + ' ' + t.sym + '</span>' +
+        '<span style="color:' + plColor + '">' + (plNum >= 0 ? '+' : '') + '$' + t.pl + '</span>' +
+        '<span style="color:var(--muted)">' + time + '</span>' +
+        '</div>';
+    }).join('');
+  },
+
+  editName() {
+    const current = UserMemory.get().name;
+    const nameEl = document.getElementById('profileDisplayName');
+    nameEl.innerHTML = '<input class="profile-edit-input" id="editNameInput" value="' + current + '" maxlength="20" style="width:140px;font-size:16px;text-align:center">';
+    const input = document.getElementById('editNameInput');
+    input.focus();
+    input.select();
+    const save = () => {
+      const val = input.value.trim();
+      if (val) UserMemory.setName(val);
+      else this.refreshName();
+    };
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } });
+  },
+};
+
+// =========================================================
+//  ONBOARDING
+// =========================================================
+const Onboarding = {
+  step: 1,
+  totalSteps: 3,
+  selectedRisk: 'moderate',
+  selectedCoins: [],
+
+  init() {
+    if (UserMemory.isOnboarded()) return;
+    document.getElementById('onboardOverlay').classList.add('open');
+    this.renderProgress();
+    this.renderCoins();
+  },
+
+  renderProgress() {
+    const container = document.getElementById('onboardProgress');
+    container.innerHTML = '';
+    for (let i = 1; i <= this.totalSteps; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'onboard-dot' + (i === this.step ? ' active' : '') + (i < this.step ? ' done' : '');
+      container.appendChild(dot);
+    }
+  },
+
+  renderCoins() {
+    document.getElementById('onboardCoins').innerHTML = COINS.map(c =>
+      '<button class="fav-coin' + (this.selectedCoins.includes(c.sym) ? ' selected' : '') + '" onclick="Onboarding.toggleCoin(\'' + c.sym + '\')" style="padding:10px 20px;font-size:13px">' +
+      '<span style="color:' + c.color + '">' + c.sym + '</span>' +
+      '</button>'
+    ).join('');
+  },
+
+  toggleCoin(sym) {
+    const idx = this.selectedCoins.indexOf(sym);
+    if (idx >= 0) this.selectedCoins.splice(idx, 1);
+    else this.selectedCoins.push(sym);
+    this.renderCoins();
+  },
+
+  selectRisk(risk, el) {
+    this.selectedRisk = risk;
+    document.querySelectorAll('.onboard-risk-card').forEach(c => c.className = 'onboard-risk-card');
+    el.classList.add('selected', 'sel-' + risk);
+  },
+
+  next() {
+    if (this.step === 1) {
+      const name = document.getElementById('onboardName').value.trim();
+      if (!name) {
+        document.getElementById('onboardName').classList.add('input-error');
+        setTimeout(() => document.getElementById('onboardName').classList.remove('input-error'), 500);
+        return;
+      }
+      UserMemory.setName(name);
+    }
+    if (this.step === 2) {
+      UserMemory.setRisk(this.selectedRisk);
+    }
+    document.getElementById('onboardStep' + this.step).classList.remove('active');
+    this.step++;
+    document.getElementById('onboardStep' + this.step).classList.add('active');
+    this.renderProgress();
+  },
+
+  finish() {
+    // Save coins
+    this.selectedCoins.forEach(sym => {
+      if (!UserMemory.get().favCoins.includes(sym)) UserMemory.toggleFavCoin(sym);
+    });
+    UserMemory.setOnboarded();
+    document.getElementById('onboardOverlay').classList.remove('open');
+    // Apply risk to portfolio
+    UserMemory.applyRiskToPortfolio();
+    UserProfile.refresh();
+  }
+};
 
 // =========================================================
 //  COIN TABS
@@ -1073,14 +1570,22 @@ function tick() {
     renderTransactions();
   }
 
-  // Occasional alert
+  // Risk-personalized alerts
   if (Math.random() > 0.92) {
+    const riskCfg = UserMemory.getRiskAlerts();
+    const favs = UserMemory.get().favCoins;
+    const userName = UserMemory.get().name || 'Trader';
+    const randomCoin = COINS[Math.floor(Math.random()*5)];
+    const drop = (Math.random()*5+1).toFixed(1);
+    const isFav = favs.includes(randomCoin.sym);
     const msgs = [
-      { level:'high',   msg: COINS[Math.floor(Math.random()*5)].sym + ' flash crash detected -' + (Math.random()*5+1).toFixed(1) + '%' },
+      { level: parseFloat(drop) > riskCfg.threshold ? 'high' : 'medium',
+        msg: (isFav ? userName + ', tu ' : '') + randomCoin.sym + ' ' + riskCfg.msg + ' -' + drop + '%' },
       { level:'medium', msg: 'Whale alert: ' + (Math.random()*500+100).toFixed(0) + ' BTC moved' },
       { level:'low',    msg: 'Staking reward: ' + (Math.random()*10).toFixed(2) + ' SOL earned' },
     ];
-    const a = msgs[Math.floor(Math.random()*3)];
+    // Prioritize alerts about favorite coins
+    const a = (isFav && Math.random() > 0.3) ? msgs[0] : msgs[Math.floor(Math.random()*3)];
     a.time = 'just now';
     alerts.unshift(a);
     if (alerts.length > 8) alerts.pop();
@@ -1092,6 +1597,10 @@ function tick() {
 // =========================================================
 //  INIT
 // =========================================================
+UserMemory.load();
+// Apply saved risk profile to portfolio allocations
+UserMemory.applyRiskToPortfolio();
+
 renderKPIs();
 renderTabs();
 drawPriceChart();
@@ -1100,6 +1609,12 @@ renderTransactions();
 renderAlerts();
 GaugeModule.init();
 HeatmapModule.init();
+
+// Init user profile navbar
+UserProfile.refreshNavbar();
+
+// Show onboarding for new users
+Onboarding.init();
 
 // Stagger entrance for all sections
 setTimeout(() => {
