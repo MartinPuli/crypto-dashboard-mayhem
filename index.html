@@ -232,6 +232,9 @@ canvas{display:block;width:100%;border-radius:8px}
 .chat-agent-tab.active-advisor{color:var(--green);border-color:var(--green);background:rgba(0,255,136,0.04)}
 .chat-agent-tab.active-analyst{color:var(--cyan);border-color:var(--cyan);background:rgba(0,229,255,0.04)}
 .chat-agent-tab.active-trader{color:var(--magenta);border-color:var(--magenta);background:rgba(255,0,170,0.04)}
+.chat-agent-tab.active-all{color:var(--text);border-color:var(--green);background:rgba(0,255,136,0.04)}
+.chat-msg-assistant.guard{border-left:2px solid var(--yellow)}
+.chat-msg-assistant.general{border-left:2px solid var(--muted)}
 .chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
 .chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-wrap:break-word;animation:fadeIn 0.25s ease}
 .chat-msg-user{align-self:flex-end;background:linear-gradient(135deg,rgba(0,255,136,0.12),rgba(0,229,255,0.08));border:1px solid rgba(0,255,136,0.15);color:var(--text);border-bottom-right-radius:4px}
@@ -354,7 +357,8 @@ canvas{display:block;width:100%;border-radius:8px}
     <button class="chat-close" onclick="ChatPanel.close()">&#x2715;</button>
   </div>
   <div class="chat-agent-tabs">
-    <button class="chat-agent-tab active-advisor" data-agent="advisor" onclick="ChatPanel.switchAgent('advisor')">&#x1F6E1;&#xFE0F; Advisor</button>
+    <button class="chat-agent-tab active-all" data-agent="all" onclick="ChatPanel.switchAgent('all')" style="color:var(--text);border-color:var(--green)">&#x1F916; Auto</button>
+    <button class="chat-agent-tab" data-agent="advisor" onclick="ChatPanel.switchAgent('advisor')">&#x1F6E1;&#xFE0F; Advisor</button>
     <button class="chat-agent-tab" data-agent="analyst" onclick="ChatPanel.switchAgent('analyst')">&#x1F4CA; Analyst</button>
     <button class="chat-agent-tab" data-agent="trader" onclick="ChatPanel.switchAgent('trader')">&#x26A1; Trader</button>
   </div>
@@ -1727,29 +1731,28 @@ const Onboarding = {
 };
 
 // =========================================================
-//  CHAT PANEL (AI Agents)
+//  CHAT PANEL (Orchestrator → Specialized Agents)
 // =========================================================
 const ChatPanel = {
   _open: false,
-  _agent: 'advisor',
+  _agent: 'all',  // 'all' = orchestrator decides, or force a specific agent
   _sending: false,
-  _histories: { advisor: [], analyst: [], trader: [] },
-  _welcomes: {
-    advisor: { icon: '\uD83D\uDEE1\uFE0F', title: 'Portfolio Advisor', desc: 'Te ayudo a optimizar tu portfolio segun tu perfil de riesgo. Preguntame sobre rebalanceo, diversificacion, o riesgos.' },
-    analyst: { icon: '\uD83D\uDCCA', title: 'Market Analyst', desc: 'Analizo el mercado crypto para vos. Preguntame sobre tendencias, Fear & Greed, whale alerts, o movimientos de precios.' },
-    trader: { icon: '\u26A1', title: 'Trade Assistant', desc: 'Te asisto con tus trades. Preguntame sobre position sizing, stop-loss, take-profit, o puntos de entrada.' }
+  _history: [],    // Single unified history
+  _agentMeta: {
+    advisor: { icon: '\uD83D\uDEE1\uFE0F', name: 'Advisor', color: 'var(--green)' },
+    analyst: { icon: '\uD83D\uDCCA', name: 'Analyst', color: 'var(--cyan)' },
+    trader:  { icon: '\u26A1', name: 'Trader', color: 'var(--magenta)' },
+    guard:   { icon: '\uD83D\uDD12', name: 'Guard', color: 'var(--yellow)' },
+    general: { icon: '\uD83E\uDD16', name: 'AI', color: 'var(--text)' },
   },
 
-  toggle() {
-    this._open ? this.close() : this.open();
-  },
+  toggle() { this._open ? this.close() : this.open(); },
 
   open() {
     this._open = true;
     document.getElementById('chatPanel').classList.add('open');
     document.getElementById('chatFab').style.display = 'none';
     this.renderMessages();
-    // Load history from Supabase if we have userId
     this._loadHistory();
   },
 
@@ -1761,50 +1764,57 @@ const ChatPanel = {
 
   switchAgent(agent) {
     this._agent = agent;
-    // Update tabs
     document.querySelectorAll('.chat-agent-tab').forEach(tab => {
       const a = tab.dataset.agent;
       tab.className = 'chat-agent-tab' + (a === agent ? ' active-' + a : '');
     });
-    this.renderMessages();
-    this._loadHistory();
   },
 
   async _loadHistory() {
-    if (!UserMemory._userId) return;
-    if (this._histories[this._agent].length > 0) return; // Already loaded
+    if (!UserMemory._userId || this._history.length > 0) return;
     try {
       const msgs = await SB.query('cv_chat_messages',
-        'user_id=eq.' + UserMemory._userId + '&agent=eq.' + this._agent + '&order=created_at.asc&limit=50');
+        'user_id=eq.' + UserMemory._userId + '&order=created_at.asc&limit=50');
       if (msgs && msgs.length > 0) {
-        this._histories[this._agent] = msgs.map(m => ({
-          role: m.role, content: m.content, time: new Date(m.created_at)
+        this._history = msgs.map(m => ({
+          role: m.role, content: m.content, agent: m.agent, time: new Date(m.created_at)
         }));
         this.renderMessages();
       }
-    } catch(e) { /* use local */ }
+    } catch(e) {}
   },
 
   renderMessages() {
     const container = document.getElementById('chatMessages');
-    const history = this._histories[this._agent];
-    if (history.length === 0) {
-      const w = this._welcomes[this._agent];
-      container.innerHTML = '<div class="chat-welcome"><div class="chat-welcome-icon">' + w.icon + '</div>' +
-        '<div class="chat-welcome-title">' + w.title + '</div><div>' + w.desc + '</div></div>';
+    if (this._history.length === 0) {
+      container.innerHTML = '<div class="chat-welcome">' +
+        '<div class="chat-welcome-icon">\uD83E\uDD16</div>' +
+        '<div class="chat-welcome-title">CryptoVault AI</div>' +
+        '<div>Escribi lo que necesites. El orchestrator elige automaticamente al mejor agente para responder.</div>' +
+        '<div style="margin-top:12px;font-size:11px;color:var(--muted)">' +
+        '\uD83D\uDEE1\uFE0F Advisor &middot; \uD83D\uDCCA Analyst &middot; \u26A1 Trader</div></div>';
       return;
     }
-    container.innerHTML = history.map(msg => {
-      const cls = msg.role === 'user' ? 'chat-msg chat-msg-user' : 'chat-msg chat-msg-assistant ' + this._agent;
-      const time = msg.time ? new Date(msg.time).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '';
-      return '<div class="' + cls + '">' + this._formatText(msg.content) +
-        (time ? '<div class="chat-msg-time">' + time + '</div>' : '') + '</div>';
+    container.innerHTML = this._history.map(msg => {
+      if (msg.role === 'user') {
+        return '<div class="chat-msg chat-msg-user">' + this._formatText(msg.content) +
+          '<div class="chat-msg-time">' + this._fmtTime(msg.time) + '</div></div>';
+      }
+      const meta = this._agentMeta[msg.agent] || this._agentMeta.general;
+      return '<div class="chat-msg chat-msg-assistant ' + (msg.agent || 'general') + '">' +
+        '<div style="font-size:9px;font-weight:700;color:' + meta.color + ';margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">' +
+        meta.icon + ' ' + meta.name + '</div>' +
+        this._formatText(msg.content) +
+        '<div class="chat-msg-time">' + this._fmtTime(msg.time) + '</div></div>';
     }).join('');
     container.scrollTop = container.scrollHeight;
   },
 
+  _fmtTime(t) {
+    return t ? new Date(t).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '';
+  },
+
   _formatText(text) {
-    // Basic markdown: **bold**, *italic*, `code`
     return text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
@@ -1818,6 +1828,7 @@ const ChatPanel = {
       portfolio: COINS.map(c => ({ sym: c.sym, name: c.name, price: c.price.toFixed(2), alloc: c.alloc })),
       risk: data.risk,
       userName: data.name,
+      onboarded: data.onboarded,
       stats: UserMemory.getStats(),
       recentTrades: data.trades.slice(0, 5),
       fearGreed: Math.round(GaugeModule.value),
@@ -1834,32 +1845,24 @@ const ChatPanel = {
     document.getElementById('chatSend').disabled = true;
 
     // Add user message
-    const now = new Date();
-    this._histories[this._agent].push({ role: 'user', content: message, time: now });
+    this._history.push({ role: 'user', content: message, time: new Date() });
     this.renderMessages();
 
-    // Save user message to Supabase
-    if (UserMemory._userId) {
-      SB.insert('cv_chat_messages', {
-        user_id: UserMemory._userId, agent: this._agent, role: 'user', content: message
-      });
-    }
-
-    // Show typing indicator
+    // Show typing
     const container = document.getElementById('chatMessages');
     const typingEl = document.createElement('div');
     typingEl.className = 'chat-msg-typing';
-    typingEl.innerHTML = '<div class="chat-typing-dots"><span></span><span></span><span></span></div>';
+    typingEl.innerHTML = '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">\uD83E\uDD16 Orchestrator eligiendo agente...</div><div class="chat-typing-dots"><span></span><span></span><span></span></div>';
     container.appendChild(typingEl);
     container.scrollTop = container.scrollHeight;
 
     try {
+      // Send to orchestrator - NO agent specified, backend decides
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          agent: this._agent,
-          message: message,
+          message,
           context: this._buildContext()
         })
       });
@@ -1869,24 +1872,30 @@ const ChatPanel = {
       if (res.ok) {
         const data = await res.json();
         const reply = data.reply || 'No pude procesar tu mensaje.';
-        this._histories[this._agent].push({ role: 'assistant', content: reply, time: new Date() });
+        const routedAgent = data.agent || 'general';
 
-        // Save assistant message to Supabase
+        this._history.push({ role: 'assistant', content: reply, agent: routedAgent, time: new Date() });
+
+        // Highlight which tab was used
+        document.querySelectorAll('.chat-agent-tab').forEach(tab => {
+          const a = tab.dataset.agent;
+          if (a === routedAgent) {
+            tab.classList.add('active-' + a);
+            setTimeout(() => { if (this._agent !== a) tab.classList.remove('active-' + a); }, 3000);
+          }
+        });
+
+        // Save to Supabase
         if (UserMemory._userId) {
-          SB.insert('cv_chat_messages', {
-            user_id: UserMemory._userId, agent: this._agent, role: 'assistant', content: reply
-          });
+          SB.insert('cv_chat_messages', { user_id: UserMemory._userId, agent: routedAgent, role: 'user', content: message });
+          SB.insert('cv_chat_messages', { user_id: UserMemory._userId, agent: routedAgent, role: 'assistant', content: reply });
         }
       } else {
-        this._histories[this._agent].push({
-          role: 'assistant', content: 'Error conectando con el agente. Intenta de nuevo.', time: new Date()
-        });
+        this._history.push({ role: 'assistant', content: 'Error conectando con el agente. Intenta de nuevo.', agent: 'general', time: new Date() });
       }
     } catch(e) {
       typingEl.remove();
-      this._histories[this._agent].push({
-        role: 'assistant', content: 'Error de conexion. Verifica tu internet e intenta de nuevo.', time: new Date()
-      });
+      this._history.push({ role: 'assistant', content: 'Error de conexion. Verifica tu internet e intenta de nuevo.', agent: 'general', time: new Date() });
     }
 
     this.renderMessages();
